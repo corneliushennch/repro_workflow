@@ -1,0 +1,31 @@
+---
+title: "README"
+author: "Cornelius Hennch"
+date: '`r format(Sys.Date(), "%d.%m.%Y")`'
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Reproducible workflow
+
+Welcome to the github repository of the Rmarkdown project for the ReproducibiliTea January 2022 session.
+
+## R Markdown
+
+Link to the little survey to get some data to be analyzed:
+
+## Information on the software/packages used to run the presentation script.
+
+**R-Version:** `r getRversion()`  
+**RStudio-Version:** `r rstudioapi::versionInfo()$version`
+
+```{r echo=FALSE}
+
+sessionInfo()
+
+```
+
+
