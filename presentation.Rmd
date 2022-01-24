@@ -2,12 +2,13 @@
 title: "Reproducible analysis workflows"
 subtitle: |
   A short introduction into reproducible analysis tools: Rmarkdown, Github and others  
+  \bigskip
   ![](figures/logo.png){width=1in}  
 author: "Cornelius Hennch"
 date: '`r format(Sys.Date(), "%d.%m.%Y")`'
 output: 
   beamer_presentation:
-    theme: "default"
+    theme: "Boadilla"
     colortheme: "dove"
     fonttheme: "structurebold"
     dev: cairo_pdf
@@ -24,10 +25,17 @@ header-includes:
 
 ```{r setup, include=FALSE}
 library(knitr)
-knitr::opts_chunk$set(echo = FALSE)
+knitr::opts_chunk$set(echo = FALSE,
+                      warning = FALSE,
+                      message = FALSE,
+                      fig.align = "center")
 ```
 
+# Introduction
+
 ## Why do we need reproducible data analysis?
+
+\centering
 
 "Reproducibility is the ability to obtain identical results from the same statistical analysis and the same data"
 
@@ -41,7 +49,7 @@ knitr::opts_chunk$set(echo = FALSE)
 \bigskip
 \normalsize
 ```
-\centering -- @Peikert2021
+ -- @Peikert2021
 
 ------------------------------------------------------------------------
 
@@ -65,7 +73,7 @@ Reproducibility ≠ Replicability
 
 ## Four essential tools for reproducible workflows
 
-\large
+\Large
 
 1.  Dynamic reports $\rightarrow$ **R Markdown** \faIcon{r-project} \linebreak
 2.  Version control $\rightarrow$ **Git & Github** \faIcon{github} \linebreak
@@ -74,14 +82,14 @@ Reproducibility ≠ Replicability
 
 ## Highly versatile dynamic documents with **R Markdown**
 
-```{r rmarkdown, echo=FALSE, fig.align='center', out.height='75%'}
+```{r rmarkdown, echo=FALSE, out.height='75%'}
 
 knitr::include_graphics("figures/rmarkdown_outputs.jpeg")
 
 ```
 
-\footnotesize
-https://rmarkdown.rstudio.com/authoring_quick_tour.html
+\scriptsize
+https://timotheenivalis.github.io/workshops/RforRSB/rmarkdown_notes.html
 
 ## Happy knitting!
 
@@ -91,7 +99,7 @@ https://rmarkdown.rstudio.com/authoring_quick_tour.html
 
 
 
-![R Markdown under the hood](figures/rmarkdownflow.png)
+![](figures/rmarkdownflow.png)
 
 \footnotesize
 https://rmarkdown.rstudio.com/authoring_quick_tour.html
@@ -113,9 +121,13 @@ https://rmarkdown.rstudio.com/authoring_quick_tour.html
 :::
 ::: {.column}
 
-###  \faIcon{github} Github
+<!---
+
+\faIcon{github} Github
 
 \vfil
+
+--->
 
 :::
 ::::::::::::::
@@ -140,10 +152,10 @@ https://rmarkdown.rstudio.com/authoring_quick_tour.html
 ###  \faIcon{github} Github
 
 - Git repository hosting service 
-* **Collaboration**:
-  - Many features for team/project management (scalable!)
-  - Report bugs/issues, get help
-  - Contribute to open-source projects
+- **Collaboration**:
+  1. Many features for team/project management (scalable!)
+  2. Report bugs/issues, get help
+  3. Contribute to open-source projects
 - Post-publication platform
 
 :::
@@ -151,7 +163,7 @@ https://rmarkdown.rstudio.com/authoring_quick_tour.html
 
 ## Collaboration with Git & Github
 
-```{r git-workflow, echo=FALSE, fig.align='center', out.height='75%'}
+```{r git-workflow, out.height='75%'}
 
 knitr::include_graphics("figures/git_workflow.png")
 
@@ -162,13 +174,116 @@ knitr::include_graphics("figures/git_workflow.png")
 
 ## \faIcon{docker} Docker 
 
-Docker is a tool that allows encapsulation, sharing, and re-creation of a computational environment on most operating systems (Windows, macOS, & Linux).
+\centering
+![](figures/container.png){width=3in}
+
+\footnotesize
 
 # Reproducible data analysis in action
 
-## Hypothesis: R skills predict early PhD completion
+## Example analysis: How do R skills influence time to thesis completion.
 
-## Simulate and vizualize data
+\Large
+\centering
+
+**Hypothesis:** Years of experience with R are inversely correlated with the estimated time to thesis completion.
+
+## Simulate data
+
+```{r sample-data, echo=FALSE, results='hide'}
+# load required packages
+library(tidyverse)
+library(finalfit)
+
+# sample data
+set.seed(1007)
+n <- 30
+
+# simulate correlated data with rnorm_multi
+data <- faux::rnorm_multi(n = n,
+                  vars = 2,
+                  mu = c(2, 1.5),
+                  sd = c(0.75, 0.5),
+                  r = -0.7,
+                  # empirical = FALSE,
+                  varnames = c("r_exp", "thesis_compl")) %>% 
+  add_column(using_r = sample(c("yes", "no"), n, replace = TRUE, prob = c(0.66,0.34)) %>% 
+               factor() %>% ff_label("Using R \nfor analysis")) %>% 
+  mutate(r_exp = if_else(using_r == "yes", r_exp, 0) %>% 
+           ff_label("Experience \nwith R (years)"),
+         thesis_compl = if_else(using_r == "yes", 
+                                   true = thesis_compl - rnorm(n, 0.4, 0.2),
+                                   false = thesis_compl) 
+          %>% ff_label("Est. time to \nthesis completion")) %>% 
+  mutate(across(where(is.numeric), ~abs(round(., digits = 2)))) %>% 
+  relocate(using_r, .before = "thesis_compl")
+
+```
+
+\footnotesize
+
+:::::::::::::: {.columns}
+::: {.column}
+
+### Examine data structure
+
+```{r show-data, echo=TRUE, results='hold'}
+
+head(data, n = 8) %>% 
+  knitr::kable()
+# glimpse(data)
+
+```
+
+
+:::
+::: {.column}
+
+### Data summary
+
+\scriptsize
+
+```{r data-overview, echo=FALSE}
+data %>% 
+  summary_factorlist(explanatory = c("r_exp", "thesis_compl", "using_r"),
+                            add_dependent_label = TRUE) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE)
+```
+
+
+
+:::
+::::::::::::::
+
+
+## Visualize simulated data
+
+```{r visualize-simulated, out.height='80%', fig.height=4, fig.width=7.75}
+
+p1 <- data %>% 
+  ggpubr::ggboxplot(x = "using_r", y = "thesis_compl", add = "dotplot",
+                    add.params = list(size = 0.5, binwidth = 0.1), width = 0.5) +
+  ggpubr::stat_compare_means(comparisons = list(c("yes", "no")),
+                             method = "t.test",
+                             label = "p.format") +
+  labs(x = "Using R for data analysis", y = "Time to thesis completion (years)")
+
+p2 <- data %>% 
+  filter(using_r == "yes") %>% 
+  ggplot(aes(x = thesis_compl, y = r_exp)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggpubr::stat_cor(method = "pearson", label.x = 0, label.y = 0) +
+  theme_classic() +
+  labs(x = "Time to thesis completion (years)", 
+       y = "Experience with using R (years)")
+
+
+cowplot::plot_grid(p1, p2, labels = "AUTO", scale = 0.95)
+
+
+```
+
 
 ## Get the data
 
@@ -179,41 +294,6 @@ link/QR code to google forms
 ## Where to start
 
 Links/ressources for these tools
-
-## R Appendix: R Figure Example
-
-The following code generates the plot on the next slide (taken from `help(bxp)` and modified slightly):
-
-```{r pressureCode, eval=FALSE}
-library(stats)
-set.seed(753)
-bx.p <- boxplot(split(rt(100, 4),
-                      gl(5, 20)), plot=FALSE)
-bxp(bx.p, notch = FALSE, boxfill = "lightblue",
-    frame = FALSE, outl = TRUE,
-    main = "Example from help(bxp)")
-```
-
-## R Appendix: R Figure Example
-
-```{r pressureFig, echo=FALSE, fig.align='center', out.width='80%'}
-library(stats)
-set.seed(753)
-bx.p <- boxplot(split(rt(100, 4),
-                      gl(5, 20)), plot=FALSE)
-bxp(bx.p, notch = FALSE, boxfill = "lightblue",
-    frame = FALSE, outl = TRUE,
-    main = "Example from help(bxp)")
-```
-
-## R Appendix: R Table Example
-
-A simple `knitr::kable` example:
-
-```{r kableEx, echo=FALSE}
-knitr::kable(mtcars[1:5, 1:8],
-             caption="(Parts of) the mtcars dataset")
-```
 
 ## References
 
