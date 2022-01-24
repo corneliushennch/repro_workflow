@@ -6,14 +6,18 @@ output: github_document
 ---
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(echo = FALSE)
 ```
 
 # Reproducible workflow
 
 Welcome to the github repository of the Rmarkdown project for the ReproducibiliTea January 2022 session.
 
-![](figures/logo.png)
+```{r logo, out.width='50%', fig.align='center'}
+
+knitr::include_graphics("figures/logo.png")
+
+```
 
 ## R Markdown
 

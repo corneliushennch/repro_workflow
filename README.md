@@ -8,7 +8,7 @@ Cornelius Hennch
 Welcome to the github repository of the Rmarkdown project for the
 ReproducibiliTea January 2022 session.
 
-![](figures/logo.png)
+<img src="figures/logo.png" width="50%" style="display: block; margin: auto;" />
 
 ## R Markdown
 
@@ -48,5 +48,5 @@ Link to the little survey to get some data to be analyzed:
     ## loaded via a namespace (and not attached):
     ##  [1] compiler_4.0.2  magrittr_2.0.1  fastmap_1.1.0   tools_4.0.2    
     ##  [5] htmltools_0.5.2 rstudioapi_0.13 yaml_2.2.1      stringi_1.7.5  
-    ##  [9] rmarkdown_2.11  knitr_1.36      stringr_1.4.0   xfun_0.28      
-    ## [13] digest_0.6.28   rlang_0.4.12    evaluate_0.14
+    ##  [9] rmarkdown_2.11  highr_0.9       knitr_1.36      stringr_1.4.0  
+    ## [13] xfun_0.28       digest_0.6.28   rlang_0.4.12    evaluate_0.14
