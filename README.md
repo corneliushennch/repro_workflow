@@ -1,7 +1,7 @@
 README
 ================
 Cornelius Hennch
-16.01.2022
+24.01.2022
 
 # Reproducible workflow
 
@@ -13,6 +13,17 @@ ReproducibiliTea January 2022 session.
 Link to the little survey to get some data to be analyzed:
 
 ## Information on the software/packages used to run the presentation script.
+
+### Package dependencies
+
+-   `tidyverse` the absolute essentials for tidy data analysis and
+    contains everything you need to knit nice RMarkdown documents
+-   `faux` simulates correlated data with \`rnorm_multi\`\`
+-   `finalfit` one of my favourite packages for tidy analysis of
+    clinical/medical data
+-   `ggpubr` creates publication ready plots based on ggplot2
+
+## Session Information
 
 **R-Version:** 4.0.2  
 **RStudio-Version:** 2021.9.1.372

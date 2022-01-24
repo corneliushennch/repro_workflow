@@ -291,9 +291,29 @@ link/QR code to google forms
 
 ## Run the code!
 
+# How do I learn these tools?
+
 ## Where to start
 
+- Reproducible research with R
+- Books
+- Datacamp
+- Website
+
+## Tidy data!
+
 Links/ressources for these tools
+
+## Session Info
+
+\tiny
+
+```{r}
+
+sessionInfo()
+
+```
+
 
 ## References
 
