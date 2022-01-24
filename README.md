@@ -8,9 +8,12 @@ Cornelius Hennch
 Welcome to the github repository of the Rmarkdown project for the
 ReproducibiliTea January 2022 session.
 
+![](figures/logo.png)
+
 ## R Markdown
 
 Link to the little survey to get some data to be analyzed:
+<https://forms.gle/Z3RVbscYMYp3aThr5>
 
 ## Information on the software/packages used to run the presentation script.
 
@@ -18,8 +21,8 @@ Link to the little survey to get some data to be analyzed:
 
 -   `tidyverse` the absolute essentials for tidy data analysis and
     contains everything you need to knit nice RMarkdown documents
--   `faux` simulates correlated data with \`rnorm_multi\`\`
--   `finalfit` one of my favourite packages for tidy analysis of
+-   `faux` simulates correlated data with `rnorm_multi`
+-   `finalfit` one of my favorite packages for tidy analysis of
     clinical/medical data
 -   `ggpubr` creates publication ready plots based on ggplot2
 
