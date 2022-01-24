@@ -192,7 +192,7 @@ knitr::include_graphics("figures/git_workflow.png")
 
 ```{r sample-data, echo=FALSE, results='hide'}
 # load required packages
-library(tidyverse)
+suppressPackageStartupMessages(library(tidyverse))
 library(finalfit)
 
 # sample data
@@ -200,23 +200,27 @@ set.seed(1007)
 n <- 30
 
 # simulate correlated data with rnorm_multi
-data <- faux::rnorm_multi(n = n,
+sim_data <- faux::rnorm_multi(n = n,
                   vars = 2,
                   mu = c(2, 1.5),
                   sd = c(0.75, 0.5),
                   r = -0.7,
                   # empirical = FALSE,
                   varnames = c("r_exp", "thesis_compl")) %>% 
-  add_column(using_r = sample(c("yes", "no"), n, replace = TRUE, prob = c(0.66,0.34)) %>% 
-               factor() %>% ff_label("Using R \nfor analysis")) %>% 
-  mutate(r_exp = if_else(using_r == "yes", r_exp, 0) %>% 
-           ff_label("Experience \nwith R (years)"),
+  add_column(using_r = sample(c("yes", "no"), n, replace = TRUE, prob = c(0.66,0.34)) %>% factor()) %>% 
+  mutate(r_exp = if_else(using_r == "yes", r_exp, 0),
          thesis_compl = if_else(using_r == "yes", 
                                    true = thesis_compl - rnorm(n, 0.4, 0.2),
-                                   false = thesis_compl) 
-          %>% ff_label("Est. time to \nthesis completion")) %>% 
+                                   false = thesis_compl)) %>% 
   mutate(across(where(is.numeric), ~abs(round(., digits = 2)))) %>% 
-  relocate(using_r, .before = "thesis_compl")
+  relocate(using_r, .before = "r_exp")
+
+# add labels
+var_labels <- c(using_r = "Using R \nfor analysis",
+                r_exp = "Experience \nwith R (years)",
+               thesis_compl = "Est. time to \nthesis completion")
+
+labelled::var_label(sim_data) <- as.list(var_labels)
 
 ```
 
@@ -229,12 +233,11 @@ data <- faux::rnorm_multi(n = n,
 
 ```{r show-data, echo=TRUE, results='hold'}
 
-head(data, n = 8) %>% 
+head(sim_data, n = 8) %>% 
   knitr::kable()
 # glimpse(data)
 
 ```
-
 
 :::
 ::: {.column}
@@ -244,13 +247,11 @@ head(data, n = 8) %>%
 \scriptsize
 
 ```{r data-overview, echo=FALSE}
-data %>% 
+sim_data %>% 
   summary_factorlist(explanatory = c("r_exp", "thesis_compl", "using_r"),
                             add_dependent_label = TRUE) %>% 
   knitr::kable(format = "latex", booktabs = TRUE)
 ```
-
-
 
 :::
 ::::::::::::::
@@ -260,7 +261,7 @@ data %>%
 
 ```{r visualize-simulated, out.height='80%', fig.height=4, fig.width=7.75}
 
-p1 <- data %>% 
+p1 <- sim_data %>% 
   ggpubr::ggboxplot(x = "using_r", y = "thesis_compl", add = "dotplot",
                     add.params = list(size = 0.5, binwidth = 0.1), width = 0.5) +
   ggpubr::stat_compare_means(comparisons = list(c("yes", "no")),
@@ -268,7 +269,7 @@ p1 <- data %>%
                              label = "p.format") +
   labs(x = "Using R for data analysis", y = "Time to thesis completion (years)")
 
-p2 <- data %>% 
+p2 <- sim_data %>% 
   filter(using_r == "yes") %>% 
   ggplot(aes(x = thesis_compl, y = r_exp)) + 
   geom_point() +
@@ -285,11 +286,84 @@ cowplot::plot_grid(p1, p2, labels = "AUTO", scale = 0.95)
 ```
 
 
-## Get the data
+## \faIcon{edit} Please provide some "real" data 
 
-link/QR code to google forms
+\centering
 
-## Run the code!
+![QR code to the survey](figures/qr_code.png){width=2.5in}
+\Large
+
+https://forms.gle/Z3RVbscYMYp3aThr5
+
+## Let's get the real data!
+
+\footnotesize
+
+```{r get-data, echo=TRUE}
+
+url <- "https://docs.google.com/spreadsheets/d/17UDIyzhZknffptP0FQTGC0409QDDgfG9juZ39Be4yek/edit?resourcekey#gid=1853289649"
+
+# auth
+googledrive::drive_auth(email = "cornelius.hennch@gmail.com")
+
+# get the data from the google sheet
+real_data <- googlesheets4::read_sheet(url) %>% 
+  select(-Zeitstempel)
+
+# rename columns
+colnames(real_data) <- colnames(sim_data)
+
+# wrange (convert everything to correct variable type)
+real_data <- real_data %>% 
+  mutate(using_r = factor(using_r),
+    r_exp = map_chr(r_exp, as.double) %>% as.double(),
+         thesis_compl = map_chr(thesis_compl, as.double) %>% as.double())
+
+# add variable labels
+labelled::var_label(real_data) <- as.list(var_labels)
+
+```
+
+
+## Real data overview
+
+\centering
+
+```{r real-data-overview, echo=FALSE}
+
+real_data %>% 
+  summary_factorlist(explanatory = c("r_exp", "thesis_compl", "using_r"),
+                            add_dependent_label = TRUE) %>% 
+  knitr::kable(format = "latex", booktabs = TRUE,
+               caption = paste("Survey summary, n =", nrow(real_data)))
+```
+
+
+## Vizualization of the "real" data with the same script
+
+```{r real-vis, out.height='80%', fig.height=4, fig.width=7.75}
+
+p1 <- real_data %>% 
+  ggpubr::ggboxplot(x = "using_r", y = "thesis_compl", add = "dotplot",
+                    add.params = list(size = 0.5, binwidth = 0.1), width = 0.5) +
+  ggpubr::stat_compare_means(comparisons = list(c("yes", "no")),
+                             method = "t.test",
+                             label = "p.format") +
+  labs(x = "Using R for data analysis", y = "Time to thesis completion (years)")
+
+p2 <- real_data %>% 
+  filter(using_r == "yes") %>% 
+  ggplot(aes(x = thesis_compl, y = r_exp)) + 
+  geom_point() +
+  geom_smooth(method = "lm") +
+  ggpubr::stat_cor(method = "pearson", label.x = 0, label.y = 0) +
+  theme_classic() +
+  labs(x = "Time to thesis completion (years)", 
+       y = "Experience with using R (years)")
+
+
+cowplot::plot_grid(p1, p2, labels = "AUTO", scale = 0.95)
+```
 
 # How do I learn these tools?
 
@@ -300,9 +374,15 @@ link/QR code to google forms
 - Datacamp
 - Website
 
+Links/ressources for these tools
+
+
 ## Tidy data!
 
-Links/ressources for these tools
+Tidy data analysis figures
+
+## Tidyverse tools
+
 
 ## Session Info
 
