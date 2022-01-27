@@ -14,6 +14,7 @@ output:
     dev: cairo_pdf
     latex_engine: "xelatex"
     keep_tex: yes
+    citation_package: biblatex
 bibliography: repro.bib
 # csl: american-medical-association.csl
 mainfont: Cambria
@@ -21,6 +22,8 @@ classoption: "aspectratio=169"
 fontsize: 12pt
 header-includes: 
   - \usepackage{fontawesome5}
+  - \usepackage{biblatex}
+  - \setlength\bibitemsep{\baselineskip}
 ---
 
 ```{r setup, include=FALSE}
@@ -61,7 +64,7 @@ Reproducibility ≠ Replicability
 
 \normalsize
 
-(same analysis **new data**)
+same analysis, **same data** / same analysis, **new data**
 
 ## Goals of reproducible workflows
 
@@ -369,20 +372,36 @@ cowplot::plot_grid(p1, p2, labels = "AUTO", scale = 0.95)
 
 ## Where to start
 
-- Reproducible research with R
-- Books
-- Datacamp
-- Website
+\large
+- Reproducible research with R:\\ 
+\footnotesize https://www.bihealth.org/de/translation/innovationstreiber/quest-center/mission-ansaetze/ausbildung-und-training/reproducible-research-with-r \linebreak
+\large
+- \faIcon{laptop-code} datacamp.com \linebreak
+- \faIcon{book} Books e.g. [R for Data Science by Hadley Wickham](https://r4ds.had.co.nz) \linebreak
+- More resources on my website: https://www.hennch.co/post/free-r-learning-resources/
 
-Links/ressources for these tools
+## Tidy data and analyses are essential for reproducibility
 
+```{r tidy-data-science, fig.align='center', out.width='80%'}
 
-## Tidy data!
+knitr::include_graphics("figures/tidy-data-science.png")
 
-Tidy data analysis figures
+```
+
+\footnotesize
+\centering
+-- @Wickham2017R
 
 ## Tidyverse tools
 
+```{r tidyverse-tools, fig.align='center', out.height='80%'}
+
+knitr::include_graphics("figures/tidyverse.png")
+
+```
+
+\tiny
+https://medium.com/@kadek/how-to-install-the-tidyverse-r-via-homebrew-macos-10-14-d749d2136cf1
 
 ## Session Info
 
@@ -398,6 +417,6 @@ sessionInfo()
 ## References
 
 Github repository of this talk: https://github.com/corneliushennch/repro_workflow
-
+\linebreak
 
 
